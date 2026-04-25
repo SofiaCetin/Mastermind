@@ -21,13 +21,25 @@ bool mouse_on_btn(float mouse_x, float mouse_y, Button* button){
     }
 }
 
+bool mouse_on_pawn(float mouse_x, float mouse_y, Pawn* pawn){
+    if(mouse_x >= pawn->x && mouse_x <= (pawn->x + pawn->w) &&
+        mouse_y >= pawn->y && mouse_y <= (pawn->y + pawn->h)){
+            return 1;
+    }
+    else{
+        return 0;
+    } 
+}
+
 int main(int argc, char *argv[])
 {
+
+    // Initialisation des objets SDL
+
     SDL_Cursor* arrow_cursor = NULL;
     SDL_Cursor* hand_cursor = NULL;
     SDL_Window* window = NULL;
     SDL_Renderer* renderer = NULL;
-    bool quit = false;
 
     if(SDL_Init(SDL_INIT_VIDEO) == false){
         fprintf(stderr, "Erreur SDL_Init : %s", SDL_GetError());
@@ -48,6 +60,8 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    SDL_SetRenderVSync(renderer, 1);
+
     arrow_cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_DEFAULT);
     if (arrow_cursor == NULL){
         fprintf(stderr, "Erreur SDL_CreateSystemCursor: %s", SDL_GetError());
@@ -66,6 +80,10 @@ int main(int argc, char *argv[])
         printf("Erreur d'initialisation de la font");
         return 1;
     }
+
+    // Création des boutons / objets nécessaires au fenêtres menu, play...
+
+    // Fenêtre du menu principal
 
     float xcenter = SCREEN_WIDTH / 2;
     float ycenter = SCREEN_HEIGHT /2;
@@ -87,10 +105,23 @@ int main(int argc, char *argv[])
     Button* play_btn = create_button((xcenter - (250 / 2)), (ycenter - (80 /2)) + 50, 250, 70, red, "Jouer", false, button_font, renderer);
     Button* quit_btn = create_button((xcenter - (250 / 2)), (ycenter - (80 /2)) + 150, 250, 70, red, "Quitter", false, button_font, renderer);
 
+    // Fenêtre du jeu
+
+    Pawn* red_spawner = create_pawn(10, 10, 40, 40, red, true, Spawner);
+    Pawn* red_pawn = NULL;
+
+    // Boucle principale de l'application
+
     GameState state = Menu;
+    bool quit = false;
+    bool moving_pawn = false;
 
     while (!quit){
         SDL_Event event;
+        float xmouse;
+        float ymouse;
+        SDL_GetMouseState(&xmouse, &ymouse);
+
         while (SDL_PollEvent(&event)){
 
             if (event.type == SDL_EVENT_QUIT){
@@ -98,9 +129,6 @@ int main(int argc, char *argv[])
             }
 
             if (state == Menu){
-                float xmouse;
-                float ymouse;
-                SDL_GetMouseState(&xmouse, &ymouse);
                 if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN){
                     if (mouse_on_btn(xmouse, ymouse, play_btn)){
                         state = Game;
@@ -111,13 +139,42 @@ int main(int argc, char *argv[])
                 }
             }
 
+            if (state == Game){
+                if (event.type == SDL_EVENT_MOUSE_MOTION) {
+                    if (moving_pawn && red_pawn != NULL) {
+                        red_pawn->x += event.motion.xrel;
+                        red_pawn->y += event.motion.yrel;
+                    }
+                }
+                if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+                    if (moving_pawn) {
+                        moving_pawn = false;
+                        red_spawner->activated = true;
+                        free(red_pawn);
+                        red_pawn = NULL;
+                    }
+                }
+                if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN){
+                    if (!moving_pawn && red_spawner->activated){
+                        if (mouse_on_pawn(xmouse, ymouse, red_spawner) && red_spawner->activated){
+                            red_pawn = create_pawn(10, 10, 40, 40, red, true, Moveable);
+                            red_spawner->activated = false;
+                            moving_pawn = true;
+                        }
+                    }
+                }
+
+            }
+
         }
+
+        // Instructions non dépendantes aux events
+
         SDL_SetRenderDrawColor(renderer, white.r, white.g, white.b, white.a);
         SDL_RenderClear(renderer);
 
+        
         if (state == Menu){
-            float xmouse;
-            float ymouse;
             SDL_GetMouseState(&xmouse, &ymouse);
             if (mouse_on_btn(xmouse, ymouse, play_btn) || mouse_on_btn(xmouse, ymouse, quit_btn)){
                 SDL_SetCursor(hand_cursor);
@@ -129,16 +186,23 @@ int main(int argc, char *argv[])
             draw_button(renderer, play_btn);
             draw_button(renderer, quit_btn);
         }
+
         else if(state == Game){
             SDL_SetCursor(arrow_cursor);
-            draw_button(renderer, play_btn);
-        }
+            draw_pawn(renderer, red_spawner);
 
+            if (red_pawn != NULL) {
+                draw_pawn(renderer, red_pawn);
+            }
+        }
+    
         SDL_RenderPresent(renderer);
     }
+    // Libération de la mémoire
 
     SDL_DestroyTexture(play_btn->text_texture);
     SDL_DestroyTexture(quit_btn->text_texture);
+    free(red_pawn);
     free(play_btn);
     free(quit_btn);
     SDL_DestroyRenderer(renderer);

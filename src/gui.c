@@ -51,9 +51,14 @@ void draw_button(SDL_Renderer* renderer, Button* button){
     
 }
 
-void show_button(Button* button){
-    printf("Position: (%f, %f)\nW/H: %f/%f\nColor: (%d, %d, %d)\nText: %s\nStatus: %d"
-    , button->x, button->y, button->w, button->h, button->color.r, button->color.g, button->color.b, button->text, button->status);
+void draw_pawn(SDL_Renderer* renderer,Pawn* pawn){
+
+    SDL_FRect rect = {pawn->x, pawn->y, pawn->w, pawn->h};
+
+    SDL_SetRenderDrawColor(renderer, pawn->color.r, pawn->color.g, pawn->color.b, pawn->color.a);
+
+    SDL_RenderFillRect(renderer, &rect);
+
 }
 
 Pawn* create_pawn(float x, float y, float w, float h, SDL_Color color, bool activated, PawnType type){
@@ -67,5 +72,6 @@ Pawn* create_pawn(float x, float y, float w, float h, SDL_Color color, bool acti
     res->h = h;
     res->color = color;
     res->activated = activated;
+    res->type = type;
     return res;
 }

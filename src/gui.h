@@ -44,7 +44,7 @@ typedef struct Pawn{
 
 Button* create_button(float x, float y, float w, float h, SDL_Color color, char* text, bool status, TTF_Font* font, SDL_Renderer* renderer);
 void draw_button(SDL_Renderer* renderer, Button* button);
-void show_button(Button* button);
-
+Pawn* create_pawn(float x, float y, float w, float h, SDL_Color color, bool activated, PawnType type);
+void draw_pawn(SDL_Renderer* renderer, Pawn* pawn);
 
 #endif
