@@ -7,10 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gui.h"
-
-extern const SDL_Color white;
-extern const SDL_Color black;
-extern const SDL_Color red;
+#include "script.h"
 
 typedef enum{
     Spawner,
@@ -22,7 +19,7 @@ typedef struct Button{
     float y;
     float w;
     float h;
-    SDL_Color color;
+    ColorCode color;
     char* text;
     bool status;
     float text_w;
@@ -36,15 +33,15 @@ typedef struct Pawn{
     float y;
     float w;
     float h;
-    SDL_Color color;
+    ColorCode color;
     bool activated;
     PawnType type;
 }Pawn;
 
 
-Button* create_button(float x, float y, float w, float h, SDL_Color color, char* text, bool status, TTF_Font* font, SDL_Renderer* renderer);
+Button* create_button(float x, float y, float w, float h, ColorCode color, char* text, bool status, TTF_Font* font, SDL_Renderer* renderer);
 void draw_button(SDL_Renderer* renderer, Button* button);
-Pawn* create_pawn(float x, float y, float w, float h, SDL_Color color, bool activated, PawnType type);
+Pawn* create_pawn(float x, float y, float w, float h, ColorCode color, bool activated, PawnType type);
 void draw_pawn(SDL_Renderer* renderer, Pawn* pawn);
 
 #endif

@@ -1,10 +1,6 @@
 #include "gui.h"
 
-const SDL_Color white = {255, 255, 255, 255};
-const SDL_Color black = {0, 0, 0, 255};
-const SDL_Color red = {255, 0, 0, 255};
-
-Button* create_button(float x, float y, float w, float h, SDL_Color color, char* text, bool status, TTF_Font* font, SDL_Renderer* renderer){
+Button* create_button(float x, float y, float w, float h, ColorCode color, char* text, bool status, TTF_Font* font, SDL_Renderer* renderer){
     Button* res = malloc(sizeof(Button));
     if (res == NULL){
         return NULL;
@@ -17,7 +13,7 @@ Button* create_button(float x, float y, float w, float h, SDL_Color color, char*
     res->text = text;
     res->status = status;
 
-    SDL_Surface* text_surface = TTF_RenderText_Blended(font, text, strlen(text), white);
+    SDL_Surface* text_surface = TTF_RenderText_Blended(font, text, strlen(text), white.rgb);
     if (text_surface == NULL){
         printf("Erreur de surface: %s", SDL_GetError());
         return NULL;
@@ -36,7 +32,7 @@ void draw_button(SDL_Renderer* renderer, Button* button){
 
     SDL_FRect rect = {button->x, button->y, button->w, button->h};
 
-    SDL_SetRenderDrawColor(renderer, button->color.r, button->color.g, button->color.b, button->color.a);
+    SDL_SetRenderDrawColor(renderer, button->color.rgb.r, button->color.rgb.g, button->color.rgb.b, button->color.rgb.a);
 
     SDL_RenderFillRect(renderer, &rect);
 
@@ -55,13 +51,13 @@ void draw_pawn(SDL_Renderer* renderer,Pawn* pawn){
 
     SDL_FRect rect = {pawn->x, pawn->y, pawn->w, pawn->h};
 
-    SDL_SetRenderDrawColor(renderer, pawn->color.r, pawn->color.g, pawn->color.b, pawn->color.a);
+    SDL_SetRenderDrawColor(renderer, pawn->color.rgb.r, pawn->color.rgb.g, pawn->color.rgb.b, pawn->color.rgb.a);
 
     SDL_RenderFillRect(renderer, &rect);
 
 }
 
-Pawn* create_pawn(float x, float y, float w, float h, SDL_Color color, bool activated, PawnType type){
+Pawn* create_pawn(float x, float y, float w, float h, ColorCode color, bool activated, PawnType type){
     Pawn* res = malloc(sizeof(Pawn));
     if (res == NULL){
         return NULL;

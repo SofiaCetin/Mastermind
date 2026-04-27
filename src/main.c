@@ -7,7 +7,7 @@
 
 typedef enum{
     Menu,
-    Game,
+    Play,
     Quit
 }GameState;
 
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
     float ycenter = SCREEN_HEIGHT /2;
 
     char* title = "Mastermind";
-    SDL_Surface* title_surface = TTF_RenderText_Blended(title_font, title, strlen(title), black);
+    SDL_Surface* title_surface = TTF_RenderText_Blended(title_font, title, strlen(title), black.rgb);
     if (title_surface == NULL){
         printf("Erreur de surface: %s", SDL_GetError());
         return 1;
@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
             if (state == Menu){
                 if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN){
                     if (mouse_on_btn(xmouse, ymouse, play_btn)){
-                        state = Game;
+                        state = Play;
                     }
                     else if(mouse_on_btn(xmouse, ymouse, quit_btn)){
                         quit = true;
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (state == Game){
+            if (state == Play){
                 if (event.type == SDL_EVENT_MOUSE_MOTION) {
                     if (moving_pawn && red_pawn != NULL) {
                         red_pawn->x += event.motion.xrel;
@@ -170,7 +170,7 @@ int main(int argc, char *argv[])
 
         // Instructions non dépendantes aux events
 
-        SDL_SetRenderDrawColor(renderer, white.r, white.g, white.b, white.a);
+        SDL_SetRenderDrawColor(renderer, white.rgb.r, white.rgb.g, white.rgb.b, white.rgb.a);
         SDL_RenderClear(renderer);
 
         
@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
             draw_button(renderer, quit_btn);
         }
 
-        else if(state == Game){
+        else if(state == Play){
             SDL_SetCursor(arrow_cursor);
             draw_pawn(renderer, red_spawner);
 
