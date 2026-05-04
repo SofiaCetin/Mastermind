@@ -148,3 +148,39 @@ void draw_pawn_list(SDL_Renderer* renderer, PawnList* list){
         current = current->next;
     }
 }
+
+void draw_gameboard(SDL_Renderer* renderer, Game* game){
+    float rect_x = (SCREEN_WIDTH / 2) - 150;
+    float rect_y = 0;
+    float rect_w = 300;
+    float rect_h = SCREEN_HEIGHT;
+    SDL_FRect rect = {rect_x, rect_y, rect_w, rect_h};
+
+    SDL_SetRenderDrawColor(renderer, dark_gray.rgb.r, dark_gray.rgb.g, dark_gray.rgb.b, dark_gray.rgb.a);
+
+    SDL_RenderFillRect(renderer, &rect);
+
+    if (game == NULL || game->code == NULL || game->colors == NULL || game->tries == NULL || game->tries->first == NULL){
+        return;
+    }
+    float y = SCREEN_HEIGHT - 50;
+    List2* current = game->tries->first;
+    while (current != NULL){
+        SDL_FRect rect_2 = {rect_x, y - 10, rect_w, rect_h};
+
+        SDL_SetRenderDrawColor(renderer, lightdark_gray.rgb.r, lightdark_gray.rgb.g, lightdark_gray.rgb.b, lightdark_gray.rgb.a);
+
+        SDL_RenderFillRect(renderer, &rect_2);
+
+        float x = rect_x + 10;
+        Element* current_el = game->tries->first->first;
+        while (current_el != NULL){
+            Pawn* new = create_pawn(x, y, 40, 40, current_el->color, false, Idle);
+            draw_pawn(renderer, new);
+            x -= 5;
+            current_el = current_el->next;      
+        }
+        y -= 5;
+        current = current->next;
+    }
+}

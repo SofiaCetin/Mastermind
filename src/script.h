@@ -13,6 +13,7 @@ typedef struct ColorCode{
 }ColorCode;
 
 extern const ColorCode white;
+extern const ColorCode light_gray;
 extern const ColorCode green;
 extern const ColorCode blue;
 extern const ColorCode yellow;
@@ -21,6 +22,8 @@ extern const ColorCode pink;
 extern const ColorCode gray;
 extern const ColorCode orange;
 extern const ColorCode black;
+extern const ColorCode dark_gray;
+extern const ColorCode lightdark_gray;
 
 typedef struct Element{
     ColorCode color;
@@ -33,15 +36,13 @@ typedef struct List{
 }List;
 
 typedef struct List2{
-    List* current;
+    Element* first;
     struct List2* next;
-    struct List2* previous;
 }List2;
 
 typedef struct ListOfLists{
-    int length;
     List2* first;
-    List2* last;
+    List2* next;
 }ListOfLists;
 
 typedef struct Game{
@@ -56,6 +57,7 @@ void append(List* colors, ColorCode element);
 void show_elements(List* colors);
 int el_in_list(List* list, ColorCode element);
 ColorCode val_i(List* list, int i);
+void append_list2(List2* list, Element* element);
 
 
 #endif

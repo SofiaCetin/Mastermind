@@ -2,9 +2,6 @@
 
 #include "gui.h"
 
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 400
-
 typedef enum{
     Menu,
     Play,
@@ -21,7 +18,7 @@ bool mouse_on_btn(float mouse_x, float mouse_y, Button* button){
     }
 }
 
-Pawn* mouse_on_pawn(float mouse_x, float mouse_y, PawnList* pawns){
+Pawn* mouse_on_spawners(float mouse_x, float mouse_y, PawnList* pawns){
     if (pawns == NULL || pawns->first == NULL){
         return NULL;
     }
@@ -69,11 +66,52 @@ void free_spawners(PawnList* pawns){
     }
     Pawn* current = pawns->first;
     while (current != NULL){
-        Pawn* supprimer = current;
+        Pawn* delete = current;
         current = current->next;
-        free(supprimer);
+        free(delete);
     }
     free(pawns);
+}
+
+void free_game(Game* game){
+    if (game == NULL){
+        return;
+    }
+    if (game->code != NULL){
+        Element* current = game->code->first;
+        while (current != NULL){
+            Element* delete = current;
+            current = current->next;
+            free(delete);
+        }
+        free(game->code);
+    }
+    
+    if (game->colors != NULL){
+        Element* current = game->colors->first;
+        while (current != NULL){
+            Element* delete = current;
+            current = current->next;
+            free(delete);
+        }
+        free(game->colors);
+    }
+
+    if (game->tries != NULL){
+        List2* current = game->tries->first;
+        while (current != NULL){
+            Element* current_el = current->first;
+            while (current_el != NULL){
+                Element* delete = current_el;
+                current_el = current_el->next;
+                free(delete);
+            }
+            List2* delete = current;
+            current = current->next;
+            free(delete);
+        }
+        free(game->tries);
+    }
 }
 
 int main(int argc, char *argv[])
@@ -149,8 +187,10 @@ int main(int argc, char *argv[])
 
     Button* play_btn = create_button((xcenter - (250 / 2)), (ycenter - (80 /2)) + 50, 250, 70, red, "Jouer", false, button_font, renderer);
     Button* quit_btn = create_button((xcenter - (250 / 2)), (ycenter - (80 /2)) + 150, 250, 70, red, "Quitter", false, button_font, renderer);
+    Button* valid_btn = create_button(1280 - 150, 720 - 70, 150, 70, green, "Valider", false, button_font, renderer);
 
     // Fenêtre du jeu
+
     srand(time(NULL));
 
     List* colors = malloc(sizeof(List));
@@ -164,15 +204,33 @@ int main(int argc, char *argv[])
     append(colors, blue);
     append(colors, red);
     append(colors, yellow);
-    append(colors, black);
     append(colors, gray);
     append(colors, pink);
     append(colors, orange);
+    append(colors, light_gray);
 
     PawnList* spawners = gen_spawn_pawns(colors);
 
+    List2* test_try = malloc(sizeof(List2));
+    if (test_try == NULL){
+        return 1;
+    }
+
+    test_try->next = NULL;
+
+    Element* test_el = malloc(sizeof(Element));
+    if (test_el == NULL){
+        return 1;
+    }
+    test_el->color = red;
+    test_el->next = NULL;
+
+    append_list2(test_try, test_el);
+
     // Boucle principale de l'application
 
+    Game* game = init_game(colors);
+    game->tries->first = test_try;
     GameState state = Menu;
     bool quit = false;
     Pawn* moving_pawn = NULL;
@@ -216,11 +274,14 @@ int main(int argc, char *argv[])
                 }
                 if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN){
                     if (moving_pawn == NULL && check_pawns_state(spawners) == 0){
-                        Pawn* moving = mouse_on_pawn(xmouse, ymouse, spawners);
+                        Pawn* moving = mouse_on_spawners(xmouse, ymouse, spawners);
                         if (moving != NULL){
                             moving_pawn = moving;
                             activate_pawns(spawners, false);
                         }
+                    }
+                    if (mouse_on_btn(xmouse, ymouse, valid_btn)){
+                        printf("Valider");
                     }
                 }
 
@@ -249,10 +310,19 @@ int main(int argc, char *argv[])
 
         else if(state == Play){
             SDL_SetCursor(arrow_cursor);
+            draw_gameboard(renderer, game);
             draw_pawn_list(renderer, spawners);
             if (moving_pawn != NULL){
                 draw_pawn(renderer, moving_pawn);
             }
+            SDL_GetMouseState(&xmouse, &ymouse);
+            if (mouse_on_btn(xmouse, ymouse, valid_btn)){
+                SDL_SetCursor(hand_cursor);
+            }
+            else{
+                SDL_SetCursor(arrow_cursor);
+            }
+            draw_button(renderer, valid_btn);
         }
     
         SDL_RenderPresent(renderer);
@@ -264,6 +334,8 @@ int main(int argc, char *argv[])
     free_spawners(spawners);
     free(play_btn);
     free(quit_btn);
+    free(valid_btn);
+    free_game(game);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();

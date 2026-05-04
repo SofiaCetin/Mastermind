@@ -9,9 +9,13 @@
 #include "gui.h"
 #include "script.h"
 
+#define SCREEN_WIDTH 1280
+#define SCREEN_HEIGHT 720
+
 typedef enum{
     Spawner,
-    Moveable
+    Moveable,
+    Idle
 }PawnType;
 
 typedef struct Button{
@@ -52,5 +56,6 @@ void draw_pawn(SDL_Renderer* renderer, Pawn* pawn);
 void append_pawn(PawnList* list, Pawn* element);
 PawnList* gen_spawn_pawns(List* colors);
 void draw_pawn_list(SDL_Renderer* renderer, PawnList* list);
+void draw_gameboard(SDL_Renderer* renderer, Game* game);
 
 #endif

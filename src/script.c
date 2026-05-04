@@ -3,14 +3,17 @@
 #include "script.h"
 
 const ColorCode white = {"White", {255, 255, 255, 255}};
+const ColorCode light_gray = {"Light Gray", {230, 230, 230, 255}};
 const ColorCode green = {"Green", {0, 255, 0, 255}};
 const ColorCode blue = {"Blue", {0, 0, 255, 255}};
 const ColorCode yellow = {"Yellow", {255, 255, 0, 255}};
 const ColorCode red = {"Red", {255, 0, 0, 255}};
 const ColorCode pink = {"Pink", {255, 0, 165, 255}};
-const ColorCode gray = {"Gray", {187, 187, 187, 255}};
+const ColorCode gray = {"Gray", {170, 170, 170, 255}};
 const ColorCode orange = {"Orange", {255, 128, 0, 255}};
 const ColorCode black = {"Black", {0, 0, 0, 255}};
+const ColorCode dark_gray = {"Dark Gray", {30, 30, 30, 255}};
+const ColorCode lightdark_gray = {"Light Dark Gray", {50, 50, 50, 255}};
 
 void append(List* colors, ColorCode element){
     if (colors == NULL){
@@ -117,24 +120,40 @@ Game* init_game(List* colors){
 
     res->code = code;
     res->colors = colors;
-    res->tries = NULL;
+    ListOfLists* list_tries = malloc(sizeof(ListOfLists));
+    res->tries = list_tries;
+    res->tries->first = NULL;
+    res->tries->next = NULL;
     return res;
 }
 
 void add_new_try(Game* game, List2* new_try){
-    if (game == NULL || new_try == NULL || new_try->current == NULL || new_try->current->first == NULL){
+    if (game == NULL || new_try == NULL || new_try->first == NULL){
         return;
     }
     if (game->tries == NULL){
         game->tries->first = new_try;
     }
 
-    new_try->previous = game->tries->last;
     new_try->next = game->tries->first;
-    game->tries->first->previous = new_try;
-    game->tries->last->next = new_try;
-    game->tries->last = new_try;
 
+}
+
+void append_list2(List2* list, Element* element){
+    if (list == NULL){
+        return;
+    }
+    if (list->first == NULL){
+        list->first = element;
+        element->next = NULL;
+        return;
+    }
+    Element* current = list->first;
+    while (current->next != NULL){
+        current = current->next;
+    }
+    current->next = element;
+    element->next = NULL;
 }
 
 /*
