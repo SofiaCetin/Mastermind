@@ -21,14 +21,59 @@ bool mouse_on_btn(float mouse_x, float mouse_y, Button* button){
     }
 }
 
-bool mouse_on_pawn(float mouse_x, float mouse_y, Pawn* pawn){
-    if(mouse_x >= pawn->x && mouse_x <= (pawn->x + pawn->w) &&
-        mouse_y >= pawn->y && mouse_y <= (pawn->y + pawn->h)){
-            return 1;
+Pawn* mouse_on_pawn(float mouse_x, float mouse_y, PawnList* pawns){
+    if (pawns == NULL || pawns->first == NULL){
+        return NULL;
     }
-    else{
-        return 0;
-    } 
+
+    Pawn* current = pawns->first;
+    while (current != NULL){
+        if(mouse_x >= current->x && mouse_x <= (current->x + current->w) &&
+        mouse_y >= current->y && mouse_y <= (current->y + current->h)){
+            Pawn* res = copy_create_pawn(current);
+            return res;
+        }
+        current = current->next;
+    }
+    return NULL;
+}
+
+void activate_pawns(PawnList* pawns, bool state){
+    if (pawns == NULL || pawns->first == NULL){
+        return;
+    }
+    Pawn* current = pawns->first;
+    while (current != NULL){
+        current->activated = state;
+        current = current->next;
+    }
+}
+
+int check_pawns_state(PawnList* pawns){
+    if (pawns == NULL || pawns->first == NULL){
+        return 1;
+    }
+    Pawn* current = pawns->first;
+    while (current != NULL){
+        if (current->activated == true){
+            return 0;
+        }
+        current = current->next;
+    }
+    return 1;
+}
+
+void free_spawners(PawnList* pawns){
+    if (pawns == NULL || pawns->first == NULL){
+        return;
+    }
+    Pawn* current = pawns->first;
+    while (current != NULL){
+        Pawn* supprimer = current;
+        current = current->next;
+        free(supprimer);
+    }
+    free(pawns);
 }
 
 int main(int argc, char *argv[])
@@ -106,15 +151,31 @@ int main(int argc, char *argv[])
     Button* quit_btn = create_button((xcenter - (250 / 2)), (ycenter - (80 /2)) + 150, 250, 70, red, "Quitter", false, button_font, renderer);
 
     // Fenêtre du jeu
+    srand(time(NULL));
 
-    Pawn* red_spawner = create_pawn(10, 10, 40, 40, red, true, Spawner);
-    Pawn* red_pawn = NULL;
+    List* colors = malloc(sizeof(List));
+    if (colors == NULL){
+        return 1;
+    }
+
+    colors->first = NULL;
+    colors->length = 0;
+    append(colors, green);
+    append(colors, blue);
+    append(colors, red);
+    append(colors, yellow);
+    append(colors, black);
+    append(colors, gray);
+    append(colors, pink);
+    append(colors, orange);
+
+    PawnList* spawners = gen_spawn_pawns(colors);
 
     // Boucle principale de l'application
 
     GameState state = Menu;
     bool quit = false;
-    bool moving_pawn = false;
+    Pawn* moving_pawn = NULL;
 
     while (!quit){
         SDL_Event event;
@@ -141,25 +202,24 @@ int main(int argc, char *argv[])
 
             if (state == Play){
                 if (event.type == SDL_EVENT_MOUSE_MOTION) {
-                    if (moving_pawn && red_pawn != NULL) {
-                        red_pawn->x += event.motion.xrel;
-                        red_pawn->y += event.motion.yrel;
+                    if (moving_pawn) {
+                        moving_pawn->x += event.motion.xrel;
+                        moving_pawn->y += event.motion.yrel;
                     }
                 }
                 if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
-                    if (moving_pawn) {
-                        moving_pawn = false;
-                        red_spawner->activated = true;
-                        free(red_pawn);
-                        red_pawn = NULL;
+                    if (moving_pawn != NULL) {
+                        activate_pawns(spawners, true);
+                        free(moving_pawn);
+                        moving_pawn = NULL;
                     }
                 }
                 if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN){
-                    if (!moving_pawn && red_spawner->activated){
-                        if (mouse_on_pawn(xmouse, ymouse, red_spawner) && red_spawner->activated){
-                            red_pawn = create_pawn(10, 10, 40, 40, red, true, Moveable);
-                            red_spawner->activated = false;
-                            moving_pawn = true;
+                    if (moving_pawn == NULL && check_pawns_state(spawners) == 0){
+                        Pawn* moving = mouse_on_pawn(xmouse, ymouse, spawners);
+                        if (moving != NULL){
+                            moving_pawn = moving;
+                            activate_pawns(spawners, false);
                         }
                     }
                 }
@@ -189,10 +249,9 @@ int main(int argc, char *argv[])
 
         else if(state == Play){
             SDL_SetCursor(arrow_cursor);
-            draw_pawn(renderer, red_spawner);
-
-            if (red_pawn != NULL) {
-                draw_pawn(renderer, red_pawn);
+            draw_pawn_list(renderer, spawners);
+            if (moving_pawn != NULL){
+                draw_pawn(renderer, moving_pawn);
             }
         }
     
@@ -202,7 +261,7 @@ int main(int argc, char *argv[])
 
     SDL_DestroyTexture(play_btn->text_texture);
     SDL_DestroyTexture(quit_btn->text_texture);
-    free(red_pawn);
+    free_spawners(spawners);
     free(play_btn);
     free(quit_btn);
     SDL_DestroyRenderer(renderer);

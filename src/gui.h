@@ -36,12 +36,21 @@ typedef struct Pawn{
     ColorCode color;
     bool activated;
     PawnType type;
+    struct Pawn* next;
 }Pawn;
+
+typedef struct PawnList{
+    Pawn* first;
+}PawnList;
 
 
 Button* create_button(float x, float y, float w, float h, ColorCode color, char* text, bool status, TTF_Font* font, SDL_Renderer* renderer);
 void draw_button(SDL_Renderer* renderer, Button* button);
 Pawn* create_pawn(float x, float y, float w, float h, ColorCode color, bool activated, PawnType type);
+Pawn* copy_create_pawn(Pawn* pawn);
 void draw_pawn(SDL_Renderer* renderer, Pawn* pawn);
+void append_pawn(PawnList* list, Pawn* element);
+PawnList* gen_spawn_pawns(List* colors);
+void draw_pawn_list(SDL_Renderer* renderer, PawnList* list);
 
 #endif

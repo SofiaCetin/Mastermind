@@ -4,22 +4,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <SDL3/SDL.h>
 
-typedef enum Color{
-    White,
-    Green,
-    Blue,
-    Yellow,
-    Red,
-    Pink,
-    Gray,
-    Orange,
-    Black
-}Color;
-
 typedef struct ColorCode{
-    Color color;
+    char* name;
     SDL_Color rgb;
 }ColorCode;
 
@@ -34,30 +23,39 @@ extern const ColorCode orange;
 extern const ColorCode black;
 
 typedef struct Element{
-    int value;
+    ColorCode color;
     struct Element* next;
 }Element;
 
 typedef struct List{
+    int length;
     Element* first;
 }List;
 
 typedef struct List2{
-    List* value;
+    List* current;
     struct List2* next;
     struct List2* previous;
 }List2;
 
 typedef struct ListOfLists{
+    int length;
     List2* first;
     List2* last;
 }ListOfLists;
 
 typedef struct Game{
     List* code;
+    List* colors;
     ListOfLists* tries;
 }Game;
 
+Game* init_game(List* colors);
 void add_new_try(Game* game, List2* new_try);
+void append(List* colors, ColorCode element);
+void show_elements(List* colors);
+int el_in_list(List* list, ColorCode element);
+ColorCode val_i(List* list, int i);
+
 
 #endif
