@@ -36,16 +36,16 @@ void append(List* colors, ColorCode element){
 
 int el_in_list(List* list, ColorCode element){
     if (list == NULL || list->first == NULL){
-        return 1;
+        return 0;
     }
     Element* current = list->first;
     while (current != NULL){
         if (current->color.name == element.name){
-            return 0;
+            return 1;
         }
         current = current->next;
     }
-    return 1;
+    return 0;
 }
 
 void show_elements(List* colors){
@@ -85,8 +85,18 @@ Game* init_game(List* colors){
         return NULL;
     }
 
-    Element* premier = malloc(sizeof(Element));
-    if (premier == NULL){
+    List* current_round = malloc(sizeof(List));
+    if (current_round == NULL){
+        return NULL;
+    }
+
+    ListOfLists* list_tries = malloc(sizeof(ListOfLists));
+    if (list_tries == NULL){
+        return NULL;
+    }
+
+    Element* first = malloc(sizeof(Element));
+    if (first == NULL){
         return NULL;
     }
 
@@ -96,10 +106,10 @@ Game* init_game(List* colors){
     }
 
     int i_range = rand() % colors->length;
-    premier->color = val_i(colors, i_range);
-    code->first = premier;
-    append(ignore_color, premier->color);
-    Element* current = premier;
+    first->color = val_i(colors, i_range);
+    code->first = first;
+    append(ignore_color, first->color);
+    Element* current = first;
     for (int i = 0; i < 3; i++){
         
         Element* next = malloc(sizeof(Element));
@@ -118,9 +128,12 @@ Game* init_game(List* colors){
         current = next;
     }
 
+    for (int i = 0; i < 4; i++){
+        append(current_round, white);
+    }
+
     res->code = code;
     res->colors = colors;
-    ListOfLists* list_tries = malloc(sizeof(ListOfLists));
     res->tries = list_tries;
     res->tries->first = NULL;
     res->tries->next = NULL;
@@ -131,11 +144,16 @@ void add_new_try(Game* game, List2* new_try){
     if (game == NULL || new_try == NULL || new_try->first == NULL){
         return;
     }
-    if (game->tries == NULL){
+    if (game->tries->first == NULL){
         game->tries->first = new_try;
+        return;
     }
-
-    new_try->next = game->tries->first;
+    List2* current = game->tries->first;
+    while (current->next != NULL){
+        current = current->next;
+    }
+    current->next = new_try;
+    new_try->next = NULL;
 
 }
 
@@ -154,6 +172,32 @@ void append_list2(List2* list, Element* element){
     }
     current->next = element;
     element->next = NULL;
+}
+
+RoundState check_round(Game* game, List2* current_round){
+    if (game == NULL || game->code == NULL || game->code->first == NULL || current_round == NULL || current_round->first == NULL){
+        return Invalid;
+    }
+
+    List* check_doubles = malloc(sizeof(List));
+    if (check_doubles == NULL){
+        return Invalid;
+    }
+    check_doubles->first = NULL;
+
+    Element* current = current_round->first;
+    while (current != NULL){
+        if (current->color.name == white.name){
+            return MissingPawns;
+        }
+        if (el_in_list(check_doubles, current->color)){
+            return SameColorPawns;
+        }
+        append(check_doubles, current->color);
+        current = current->next;
+
+    }
+    return Valid;
 }
 
 /*

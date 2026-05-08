@@ -7,6 +7,13 @@
 #include <time.h>
 #include <SDL3/SDL.h>
 
+typedef enum RoundState{
+    Valid,
+    MissingPawns,
+    SameColorPawns,
+    Invalid
+}RoundState;
+
 typedef struct ColorCode{
     char* name;
     SDL_Color rgb;
@@ -58,6 +65,7 @@ void show_elements(List* colors);
 int el_in_list(List* list, ColorCode element);
 ColorCode val_i(List* list, int i);
 void append_list2(List2* list, Element* element);
+RoundState check_round(Game* game, List2* current_round);
 
 
 #endif

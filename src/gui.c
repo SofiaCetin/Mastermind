@@ -149,7 +149,7 @@ void draw_pawn_list(SDL_Renderer* renderer, PawnList* list){
     }
 }
 
-void draw_gameboard(SDL_Renderer* renderer, Game* game){
+void draw_gameboard(SDL_Renderer* renderer, Game* game, PawnList* current_pawns){
     float rect_x = (SCREEN_WIDTH / 2) - 150;
     float rect_y = 0;
     float rect_w = 300;
@@ -160,27 +160,119 @@ void draw_gameboard(SDL_Renderer* renderer, Game* game){
 
     SDL_RenderFillRect(renderer, &rect);
 
-    if (game == NULL || game->code == NULL || game->colors == NULL || game->tries == NULL || game->tries->first == NULL){
+    if (game == NULL || game->code == NULL || game->colors == NULL || game->tries == NULL || current_pawns == NULL){
         return;
     }
-    float y = SCREEN_HEIGHT - 50;
-    List2* current = game->tries->first;
-    while (current != NULL){
-        SDL_FRect rect_2 = {rect_x, y - 10, rect_w, rect_h};
 
-        SDL_SetRenderDrawColor(renderer, lightdark_gray.rgb.r, lightdark_gray.rgb.g, lightdark_gray.rgb.b, lightdark_gray.rgb.a);
+    float try_h = rect_h / 9;
+    float pawns_w = 40;
+    float pawns_h = 40;
+    float pawns_separation = (rect_w - (4*pawns_w)) / 5;
+    float pawns_x = rect_x + pawns_separation;
+    rect_y = SCREEN_HEIGHT - try_h;
+    float pawns_y = rect_y + ((try_h / 2) - 20);
 
-        SDL_RenderFillRect(renderer, &rect_2);
+    if (game->tries->first != NULL){
+        List2* current = game->tries->first;
+        while (current != NULL){
+            SDL_FRect rect_2 = {rect_x, rect_y, rect_w, try_h};
 
-        float x = rect_x + 10;
-        Element* current_el = game->tries->first->first;
-        while (current_el != NULL){
-            Pawn* new = create_pawn(x, y, 40, 40, current_el->color, false, Idle);
-            draw_pawn(renderer, new);
-            x -= 5;
-            current_el = current_el->next;      
+            SDL_SetRenderDrawColor(renderer, lightdark_gray.rgb.r, lightdark_gray.rgb.g, lightdark_gray.rgb.b, lightdark_gray.rgb.a);
+
+            SDL_RenderFillRect(renderer, &rect_2);
+
+            Element* current_el = current->first;
+            while (current_el != NULL){
+                Pawn* new = create_pawn(pawns_x, pawns_y, pawns_w, pawns_h, current_el->color, false, Idle);
+                draw_pawn(renderer, new);
+                pawns_x += pawns_separation + pawns_w;
+                current_el = current_el->next;      
+            }
+            rect_y -= try_h;
+            pawns_y = rect_y + ((try_h / 2) - 20);
+            current = current->next;
+            pawns_x = rect_x + pawns_separation;
         }
-        y -= 5;
+    }
+
+    SDL_FRect rect_current = {rect_x, rect_y, rect_w, try_h};
+
+    SDL_SetRenderDrawColor(renderer, lightdark_gray.rgb.r, lightdark_gray.rgb.g, lightdark_gray.rgb.b, lightdark_gray.rgb.a);
+
+    SDL_RenderFillRect(renderer, &rect_current);
+
+    if (current_pawns->first == NULL){
+        for (int i = 0; i < 4; i++){
+            Pawn* new = create_pawn(pawns_x, pawns_y, pawns_w, pawns_h, white, false, Idle);
+            append_pawn(current_pawns, new);
+            pawns_x += pawns_separation + pawns_w;
+        }
+    }
+
+    Pawn* current = current_pawns->first;
+    while (current != NULL){
+        draw_pawn(renderer, current);
         current = current->next;
     }
+}
+
+void modify_current_pawns(PawnList* current_pawns, float x, float y, Pawn* pawn){
+    if (current_pawns == NULL || current_pawns->first == NULL || pawn == NULL){
+        return;
+    }
+    Pawn* current = current_pawns->first;
+    while (current != NULL){
+        if (current->x == x && current->y == y){
+            if (current->color.name == white.name){
+                current->color = pawn->color;
+            }
+        }
+        current = current->next;
+    }
+}
+
+Pawn* pawn_click(PawnList* current_pawns, float x, float y){
+    if (current_pawns == NULL || current_pawns->first == NULL){
+        return NULL;
+    }
+
+    Pawn* current = current_pawns->first;
+    while (current != NULL){
+        if (current->x == x && current->y == y){
+            if(current->color.name != white.name){
+                Pawn* res = copy_create_pawn(current);
+                res->type = Moveable;
+                current->color = white;
+                return res;
+            }
+        }
+        current = current->next;
+    }
+    return NULL;
+}
+
+List2* convert_pawnlist_to_list(PawnList* pawns){
+    if (pawns == NULL || pawns->first == NULL){
+        return NULL;
+    }
+
+    List2* res = malloc(sizeof(List));
+    if (res == NULL){
+        return NULL;
+    }
+    res->next = NULL;
+
+    Pawn* current = pawns->first;
+    while (current != NULL){
+        Element* element = malloc(sizeof(Element));
+        if (element == NULL){
+            return NULL;
+        }
+        element->color = current->color;
+        element->next = NULL;
+        append_list2(res, element);
+        current = current->next;
+    }
+
+    return res;
 }
