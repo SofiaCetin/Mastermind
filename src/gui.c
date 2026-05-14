@@ -1,3 +1,5 @@
+// Script contenant des fonctions pour créer le GUI sans surcharger le main
+
 #include "gui.h"
 
 Button* create_button(float x, float y, float w, float h, ColorCode color, char* text, bool status, TTF_Font* font, SDL_Renderer* renderer){
@@ -10,22 +12,48 @@ Button* create_button(float x, float y, float w, float h, ColorCode color, char*
     res->w = w;
     res->h = h;
     res->color = color;
-    res->text = text;
     res->status = status;
 
-    SDL_Surface* text_surface = TTF_RenderText_Blended(font, text, strlen(text), white.rgb);
+    Text* button_text = create_text(x + w / 2, y + h / 2, text, white, font, renderer);
+    if (button_text == NULL){
+        return NULL;
+    }
+    res->text = button_text;
+
+    return res;
+}
+
+Text* create_text(float x, float y, char* text, ColorCode color, TTF_Font* font, SDL_Renderer* renderer){
+    Text* res = malloc(sizeof(Text));
+    if (res == NULL){
+        return NULL;
+    }
+    res->x = x;
+    res->y = y;
+    res->text = text;
+    res->color = color;
+
+    SDL_Surface* text_surface = TTF_RenderText_Blended(font, text, strlen(text), color.rgb);
     if (text_surface == NULL){
         printf("Erreur de surface: %s", SDL_GetError());
         return NULL;
     }
 
-    res->text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
-    res->text_w = text_surface->w;
-    res->text_h = text_surface->h;
+    res->texture = SDL_CreateTextureFromSurface(renderer, text_surface);
+    res->w = text_surface->w;
+    res->h = text_surface->h;
 
     SDL_DestroySurface(text_surface);
 
     return res;
+
+}
+
+void draw_text(SDL_Renderer* renderer, Text* text){
+
+    SDL_FRect text_rect = {text->x - text->w / 2, text->y - text->h /2, text->w, text->h};
+
+    SDL_RenderTexture(renderer, text->texture, NULL, &text_rect);
 }
 
 void draw_button(SDL_Renderer* renderer, Button* button){
@@ -36,14 +64,9 @@ void draw_button(SDL_Renderer* renderer, Button* button){
 
     SDL_RenderFillRect(renderer, &rect);
 
-    SDL_FRect text_rect = {
-        button->x + (button->w - button->text_w) / 2,
-        button->y + (button->h - button->text_h) / 2,
-        button->text_w,
-        button->text_h,
-    };
-
-    SDL_RenderTexture(renderer, button->text_texture, NULL, &text_rect);
+    if (button->text != NULL){
+        draw_text(renderer, button->text);
+    }
     
 }
 
@@ -156,7 +179,7 @@ void draw_gameboard(SDL_Renderer* renderer, Game* game, PawnList* current_pawns)
     float rect_h = SCREEN_HEIGHT;
     SDL_FRect rect = {rect_x, rect_y, rect_w, rect_h};
 
-    SDL_SetRenderDrawColor(renderer, dark_gray.rgb.r, dark_gray.rgb.g, dark_gray.rgb.b, dark_gray.rgb.a);
+    SDL_SetRenderDrawColor(renderer, darker_gray.rgb.r, darker_gray.rgb.g, darker_gray.rgb.b, darker_gray.rgb.a);
 
     SDL_RenderFillRect(renderer, &rect);
 
@@ -203,7 +226,7 @@ void draw_gameboard(SDL_Renderer* renderer, Game* game, PawnList* current_pawns)
 
     if (current_pawns->first == NULL){
         for (int i = 0; i < 4; i++){
-            Pawn* new = create_pawn(pawns_x, pawns_y, pawns_w, pawns_h, white, false, Idle);
+            Pawn* new = create_pawn(pawns_x, pawns_y, pawns_w, pawns_h, lighter_gray, false, Idle);
             append_pawn(current_pawns, new);
             pawns_x += pawns_separation + pawns_w;
         }
@@ -223,7 +246,7 @@ void modify_current_pawns(PawnList* current_pawns, float x, float y, Pawn* pawn)
     Pawn* current = current_pawns->first;
     while (current != NULL){
         if (current->x == x && current->y == y){
-            if (current->color.name == white.name){
+            if (current->color.name == lighter_gray.name){
                 current->color = pawn->color;
             }
         }
@@ -239,10 +262,10 @@ Pawn* pawn_click(PawnList* current_pawns, float x, float y){
     Pawn* current = current_pawns->first;
     while (current != NULL){
         if (current->x == x && current->y == y){
-            if(current->color.name != white.name){
+            if(current->color.name != lighter_gray.name){
                 Pawn* res = copy_create_pawn(current);
                 res->type = Moveable;
-                current->color = white;
+                current->color = lighter_gray;
                 return res;
             }
         }
@@ -276,3 +299,33 @@ List2* convert_pawnlist_to_list(PawnList* pawns){
 
     return res;
 }
+
+/*
+void draw_numbers(TTF_Font* font, int number, float starting_x, float starting_y){
+    if (font == NULL || number > 4){
+        return;
+    }
+    
+    int tab[] = {"1", "2", "3", "4"};
+
+    for (int i = 0; i < number; i++){
+        char* title = tab[j];
+        SDL_Surface* title_surface = TTF_RenderText_Blended(title_font, title, strlen(title), white.rgb);
+        if (title_surface == NULL){
+            printf("Erreur de surface: %s", SDL_GetError());
+            return 1;
+        }
+        SDL_Texture* title_texture = SDL_CreateTextureFromSurface(renderer, title_surface);
+
+        float text_w = title_surface->w;
+        float text_h = title_surface->h;
+
+        SDL_DestroySurface(title_surface);
+
+        SDL_FRect text_rect = {starting_x - text_w / 2, (starting_y - 100) - text_h / 2, text_w, text_h};
+
+        SDL_RenderTexture(renderer, title_texture, NULL, &text_rect);
+
+    }
+}
+*/

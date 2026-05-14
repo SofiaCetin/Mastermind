@@ -17,17 +17,24 @@ typedef enum{
     Idle
 }PawnType;
 
+typedef struct Text{
+    float x;
+    float y;
+    float w;
+    float h;
+    char* text;
+    ColorCode color;
+    SDL_Texture* texture;
+}Text;
+
 typedef struct Button{
     float x;
     float y;
     float w;
     float h;
     ColorCode color;
-    char* text;
     bool status;
-    float text_w;
-    float text_h;
-    SDL_Texture* text_texture;
+    Text* text;
 
 }Button;
 
@@ -59,5 +66,7 @@ void draw_gameboard(SDL_Renderer* renderer, Game* game, PawnList* current_pawns)
 void modify_current_pawns(PawnList* current_pawns, float x, float y, Pawn* pawn);
 Pawn* pawn_click(PawnList* current_pawns, float x, float y);
 List2* convert_pawnlist_to_list(PawnList* pawns);
+Text* create_text(float x, float y, char* text, ColorCode color, TTF_Font* font, SDL_Renderer* renderer);
+void draw_text(SDL_Renderer* renderer, Text* text);
 
 #endif

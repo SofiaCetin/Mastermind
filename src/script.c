@@ -1,4 +1,4 @@
-// Script de base du jeu
+// Script fonctionnel du jeu
 
 #include "script.h"
 
@@ -14,6 +14,8 @@ const ColorCode orange = {"Orange", {255, 128, 0, 255}};
 const ColorCode black = {"Black", {0, 0, 0, 255}};
 const ColorCode dark_gray = {"Dark Gray", {30, 30, 30, 255}};
 const ColorCode lightdark_gray = {"Light Dark Gray", {50, 50, 50, 255}};
+const ColorCode lighter_gray = {"Lighter Gray", {80, 80, 80, 255}};
+const ColorCode darker_gray = {"Darker Gray", {25, 25, 25, 255}};
 
 void append(List* colors, ColorCode element){
     if (colors == NULL){
@@ -187,7 +189,7 @@ RoundState check_round(Game* game, List2* current_round){
 
     Element* current = current_round->first;
     while (current != NULL){
-        if (current->color.name == white.name){
+        if (current->color.name == lighter_gray.name){
             return MissingPawns;
         }
         if (el_in_list(check_doubles, current->color)){
@@ -199,6 +201,30 @@ RoundState check_round(Game* game, List2* current_round){
     }
     return Valid;
 }
+
+int colors_results(Game* game, List2* current_round){
+    if (game == NULL || game->code == NULL || game->code->first == NULL || current_round == NULL || current_round->first == NULL){
+        return 0;
+    }
+    int res = 0;
+    Element* current = current_round->first;
+    while (current != NULL){
+        if (el_in_list(game->code, current->color)){
+            res++;
+        }
+        current = current->next;
+    }
+    return res;
+}
+
+/*
+int pos_results(Game* game, List2* current_round){
+    if (game == NULL || game->code == NULL || game->code->first == NULL || current_round == NULL || current_round->first == NULL){
+        return 0;
+    }
+    
+}
+*/
 
 /*
 int main(void){

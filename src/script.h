@@ -31,6 +31,8 @@ extern const ColorCode orange;
 extern const ColorCode black;
 extern const ColorCode dark_gray;
 extern const ColorCode lightdark_gray;
+extern const ColorCode darker_gray;
+extern const ColorCode lighter_gray;
 
 typedef struct Element{
     ColorCode color;

@@ -1,4 +1,4 @@
-// Boucle principale du jeu
+// Script principal du jeu
 
 #include "gui.h"
 
@@ -7,6 +7,8 @@ typedef enum{
     Play,
     Quit
 }GameState;
+
+// Fonctions de jeu auxiliaires
 
 bool mouse_on_btn(float mouse_x, float mouse_y, Button* button){
     if(mouse_x >= button->x && mouse_x <= (button->x + button->w) &&
@@ -79,6 +81,26 @@ int check_pawns_state(PawnList* pawns){
     return 1;
 }
 
+void free_text(Text* text){
+    if (text == NULL || text->texture == NULL){
+        return;
+    }
+    SDL_DestroyTexture(text->texture);
+    free(text);
+}
+
+void free_button(Button* button){
+    if (button == NULL){
+        return;
+    }
+
+    if (button->text != NULL){
+        free_text(button->text);
+    }
+
+    free(button);
+}
+
 void free_pawns(PawnList* pawns){
     if (pawns == NULL || pawns->first == NULL){
         return;
@@ -147,6 +169,8 @@ void free_game(Game* game){
     free(game);
 }
 
+// Fonction de jeu principale
+
 int main(int argc, char *argv[])
 {
 
@@ -197,35 +221,19 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // Création des boutons / objets nécessaires au fenêtres menu, play...
-
-    // Fenêtre du menu principal
+    // Initialisation des pointeurs et variables nécessaires a la fenêtre menu
 
     float xcenter = SCREEN_WIDTH / 2;
     float ycenter = SCREEN_HEIGHT /2;
 
-    char* title = "Mastermind";
-    SDL_Surface* title_surface = TTF_RenderText_Blended(title_font, title, strlen(title), black.rgb);
-    if (title_surface == NULL){
-        printf("Erreur de surface: %s", SDL_GetError());
-        return 1;
-    }
-    SDL_Texture* title_texture = SDL_CreateTextureFromSurface(renderer, title_surface);
+    Text* main_title = create_text(xcenter, ycenter - 100, "Mastermind", white, title_font, renderer);
 
-    float text_w = title_surface->w;
-    float text_h = title_surface->h;
-    SDL_DestroySurface(title_surface);
+    Button* play_btn = create_button((xcenter - (250 / 2)), (ycenter - (80 /2)) + 50, 250, 70, lightdark_gray, "Jouer", false, button_font, renderer);
+    Button* quit_btn = create_button((xcenter - (250 / 2)), (ycenter - (80 /2)) + 150, 250, 70, lightdark_gray, "Quitter", false, button_font, renderer);
 
-    SDL_FRect title_rect = {xcenter - text_w / 2, (ycenter - 100) - text_h / 2, text_w, text_h};
-
-    Button* play_btn = create_button((xcenter - (250 / 2)), (ycenter - (80 /2)) + 50, 250, 70, red, "Jouer", false, button_font, renderer);
-    Button* quit_btn = create_button((xcenter - (250 / 2)), (ycenter - (80 /2)) + 150, 250, 70, red, "Quitter", false, button_font, renderer);
-    Button* valid_btn = create_button(1280 - 150, 720 - 70, 150, 70, green, "Valider", false, button_font, renderer);
-
-    // Fenêtre du jeu
+    // Initialisation des pointeurs et variables nécessaires a la fenêtre jeu
 
     srand(time(NULL));
-
 
     List* colors = malloc(sizeof(List));
     if (colors == NULL){
@@ -245,73 +253,29 @@ int main(int argc, char *argv[])
 
     PawnList* spawners = gen_spawn_pawns(colors);
 
-    /*
-
-    List2* test_try = malloc(sizeof(List2));
-    if (test_try == NULL){
-        return 1;
-    }
-
-    Element* test_el = malloc(sizeof(Element));
-    if (test_el == NULL){
-        return 1;
-    }
-    test_el->color = red;
-
-    append_list2(test_try, test_el);
-
-    Element* test_el2 = malloc(sizeof(Element));
-    if (test_el2 == NULL){
-        return 1;
-    }
-    test_el2->color = blue;
-
-    append_list2(test_try, test_el2);
-
-
-    List2* test_try2 = malloc(sizeof(List2));
-    if (test_try2 == NULL){
-        return 1;
-    }
-
-    Element* test_el5 = malloc(sizeof(Element));
-    if (test_el5 == NULL){
-        return 1;
-    }
-
-    test_el5->color = gray;
-
-    append_list2(test_try2, test_el5);
-
-    */
-
-    // Boucle principale de l'application
+    Button* valid_btn = create_button(1280 - 150, 720 - 70, 150, 70, green, "Valider", false, button_font, renderer);
 
     Game* game = init_game(colors);
-
-    /*
-    add_new_try(game, test_try);
-    add_new_try(game, test_try2);
-
-    */
 
     PawnList* current_pawns = malloc(sizeof(PawnList));
     if (current_pawns == NULL){
         return 1;
     }
-
     current_pawns->first = NULL;
-
 
     GameState state = Menu;
     bool quit = false;
     Pawn* moving_pawn = NULL;
+
+    // Boucle principale du jeu
 
     while (!quit){
         SDL_Event event;
         float xmouse;
         float ymouse;
         SDL_GetMouseState(&xmouse, &ymouse);
+
+        // Boucle des interactions/events à la souris
 
         while (SDL_PollEvent(&event)){
 
@@ -389,9 +353,9 @@ int main(int argc, char *argv[])
 
         }
 
-        // Instructions non dépendantes aux events
+        // Instructions pour générer le GUI
 
-        SDL_SetRenderDrawColor(renderer, white.rgb.r, white.rgb.g, white.rgb.b, white.rgb.a);
+        SDL_SetRenderDrawColor(renderer, dark_gray.rgb.r, dark_gray.rgb.g, dark_gray.rgb.b, dark_gray.rgb.a);
         SDL_RenderClear(renderer);
 
         
@@ -403,7 +367,7 @@ int main(int argc, char *argv[])
             else{
                 SDL_SetCursor(arrow_cursor);
             }
-            SDL_RenderTexture(renderer, title_texture, NULL, &title_rect);
+            draw_text(renderer, main_title);
             draw_button(renderer, play_btn);
             draw_button(renderer, quit_btn);
         }
@@ -427,15 +391,14 @@ int main(int argc, char *argv[])
     
         SDL_RenderPresent(renderer);
     }
+
     // Libération de la mémoire
 
-    SDL_DestroyTexture(play_btn->text_texture);
-    SDL_DestroyTexture(quit_btn->text_texture);
-    SDL_DestroyTexture(valid_btn->text_texture);
+    free_text(main_title);
     free_pawn_list(spawners);
-    free(play_btn);
-    free(quit_btn);
-    free(valid_btn);
+    free_button(play_btn);
+    free_button(quit_btn);
+    free_button(valid_btn);
     free_game(game);
     free_pawn_list(current_pawns);
     SDL_DestroyRenderer(renderer);
