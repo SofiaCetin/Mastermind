@@ -139,6 +139,10 @@ PawnList* gen_spawn_pawns(List* colors){
     }
 
     PawnList* res = malloc(sizeof(PawnList));
+    if (res == NULL){
+        return NULL;
+    }
+    res->first = NULL;
     float x = 10;
     float y = 10;
     Element* current = colors->first;
