@@ -89,26 +89,28 @@ Game* init_game(List* colors){
     if (code == NULL){
         return NULL;
     }
-
-    List* current_round = malloc(sizeof(List));
-    if (current_round == NULL){
-        return NULL;
-    }
+    code->first = NULL;
+    code->length = 0;
 
     ListOfLists* list_tries = malloc(sizeof(ListOfLists));
     if (list_tries == NULL){
         return NULL;
     }
+    list_tries->first = NULL;
 
     Element* first = malloc(sizeof(Element));
     if (first == NULL){
         return NULL;
     }
 
+    first->next = NULL;
+
     List* ignore_color = malloc(sizeof(List));
     if (ignore_color == NULL){
         return NULL;
     }
+    ignore_color->first = NULL;
+    ignore_color->length = 0;
 
     int i_range = rand() % colors->length;
     first->color = val_i(colors, i_range);
@@ -131,16 +133,23 @@ Game* init_game(List* colors){
         append(ignore_color, next->color);
         current->next = next;
         current = next;
-    }
-
-    for (int i = 0; i < 4; i++){
-        append(current_round, white);
+        next->next = NULL;
     }
 
     res->code = code;
     res->colors = colors;
     res->tries = list_tries;
     res->tries->first = NULL;
+
+    Element* current2 = ignore_color->first;
+    while (current2 != NULL){
+        Element* delete = current2;
+        current2 = current2->next;
+        free(delete);
+    }
+
+    free(ignore_color);
+
     return res;
 }
 
@@ -185,6 +194,7 @@ RoundState check_round(Game* game, List2* current_round){
 
     List* check_doubles = malloc(sizeof(List));
     if (check_doubles == NULL){
+        free(check_doubles);
         return Invalid;
     }
     check_doubles->first = NULL;
@@ -192,9 +202,11 @@ RoundState check_round(Game* game, List2* current_round){
     Element* current = current_round->first;
     while (current != NULL){
         if (strcmp(current->color.name, lighter_gray.name) == 0){
+            free(check_doubles);
             return MissingPawns;
         }
         if (el_in_list(check_doubles, current->color)){
+            free(check_doubles);
             return SameColorPawns;
         }
         append(check_doubles, current->color);
@@ -206,11 +218,13 @@ RoundState check_round(Game* game, List2* current_round){
     Element* color_round = current_round->first;
     while (color_code != NULL){
         if (strcmp(color_code->color.name, color_round->color.name) != 0){
+            free(check_doubles);
             return Valid;
         }
         color_code = color_code->next;
         color_round = color_round->next;
     }
+    free(check_doubles);
     return Win;
 }
 

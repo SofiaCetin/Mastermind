@@ -52,6 +52,9 @@ Text* create_text(float x, float y, char* text, ColorCode color, TTF_Font* font,
 }
 
 void draw_text(SDL_Renderer* renderer, Text* text){
+    if (text == NULL || text->texture == NULL){
+        return;
+    }
 
     SDL_FRect text_rect = {text->x - text->w / 2, text->y - text->h /2, text->w, text->h};
 
@@ -94,6 +97,7 @@ Pawn* create_pawn(float x, float y, float w, float h, ColorCode color, bool acti
     res->color = color;
     res->activated = activated;
     res->type = type;
+    res->next = NULL;
     return res;
 }
 
@@ -109,6 +113,7 @@ Pawn* copy_create_pawn(Pawn* pawn){
     res->color = pawn->color;
     res->activated = pawn->activated;
     res->type = pawn->type;
+    res->next = NULL;
     return res;
 }
 
@@ -216,8 +221,14 @@ void draw_gameboard(SDL_Renderer* renderer, Game* game, PawnList* current_pawns,
 
             Element* current_el = current->first;
             while (current_el != NULL){
-                Pawn* new = create_pawn(pawns_x, pawns_y, pawns_w, pawns_h, current_el->color, false, Idle);
-                draw_pawn(renderer, new);
+                Pawn new;
+                new.x = pawns_x;
+                new.y = pawns_y;
+                new.w = pawns_w;
+                new.h = pawns_h;
+                new.color = current_el->color;
+
+                draw_pawn(renderer, &new);
                 pawns_x += pawns_separation + pawns_w;
                 current_el = current_el->next;      
             }
@@ -312,7 +323,7 @@ List2* convert_pawnlist_to_list(PawnList* pawns){
 }
 
 void append_textlist(TextList* list, Text* text){
-    if (list == NULL){
+    if (list == NULL || text == NULL){
         return;
     }
 

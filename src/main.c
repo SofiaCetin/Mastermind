@@ -123,15 +123,18 @@ void free_button(Button* button){
 }
 
 void free_pawns(PawnList* pawns){
-    if (pawns == NULL || pawns->first == NULL){
+    if (pawns == NULL){
         return;
     }
+
     Pawn* current = pawns->first;
+
     while (current != NULL){
-        Pawn* delete = current;
+        Pawn* del = current;
         current = current->next;
-        free(delete);
+        free(del);
     }
+
     pawns->first = NULL;
 }
 

@@ -18,17 +18,11 @@ Tout au long des manches, le joueur aura la possibilité de voir combien de coul
 
 _Un aperçu du jeu_
 
-## Add your files
+## Utilisation
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+### Pré-requis
 
-```
-cd existing_repo
-git remote add origin https://code.up8.edu/scetin/mastermind.git
-git branch -M main
-git push -uf origin main
-```
+Ce programme nécessite les packages SDL3 et SDL_ttf afin de fonctionner.
 
 ## Integrate with your tools
 
