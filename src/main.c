@@ -317,6 +317,8 @@ int main(int argc, char *argv[])
     if (colors_valid == NULL || pos_valid == NULL){
         return 1;
     }
+    colors_valid->first = NULL;
+    pos_valid->first = NULL;
 
     int color_result = 0;
     int pos_result = 0;
