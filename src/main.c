@@ -89,6 +89,26 @@ void free_text(Text* text){
     free(text);
 }
 
+
+void free_text_list(TextList* list){
+    if (list == NULL){
+        return;
+    }
+
+    if (list->first == NULL){
+        free(list);
+        return;
+    }
+
+    Text* current = list->first;
+    while (current != NULL){
+        Text* delete = current;
+        current = current->next;
+        free_text(delete);
+    }
+    free(list);
+}
+
 void free_button(Button* button){
     if (button == NULL){
         return;
@@ -115,9 +135,15 @@ void free_pawns(PawnList* pawns){
 }
 
 void free_pawn_list(PawnList* pawns){
-    if (pawns == NULL || pawns->first == NULL){
+    if (pawns == NULL){
         return;
     }
+
+    if (pawns->first == NULL){
+        free(pawns);
+        return;
+    }
+
     Pawn* current = pawns->first;
     while (current != NULL){
         Pawn* delete = current;
@@ -267,6 +293,16 @@ int main(int argc, char *argv[])
     bool quit = false;
     Pawn* moving_pawn = NULL;
 
+    TextList* colors_valid = malloc(sizeof(TextList));
+    TextList* pos_valid = malloc(sizeof(TextList));
+    if (colors_valid == NULL || pos_valid == NULL){
+        return 1;
+    }
+
+    int color_result = 0;
+
+    show_elements(game->code);
+
     // Boucle principale du jeu
 
     while (!quit){
@@ -343,6 +379,8 @@ int main(int argc, char *argv[])
                             printf("Il ne peut pas y avoir deux pions de la même couleur");
                         }
                         else if (result == Valid){
+                            color_result = colors_results(game, converted_round);
+                            converted_round->color_result = color_result;
                             add_new_try(game, converted_round);
                             free_pawns(current_pawns);
                         }
@@ -374,7 +412,7 @@ int main(int argc, char *argv[])
 
         else if(state == Play){
             SDL_SetCursor(arrow_cursor);
-            draw_gameboard(renderer, game, current_pawns);
+            draw_gameboard(renderer, game, current_pawns, colors_valid, pos_valid, button_font);
             draw_pawn_list(renderer, spawners);
             if (moving_pawn != NULL){
                 draw_pawn(renderer, moving_pawn);
@@ -395,6 +433,8 @@ int main(int argc, char *argv[])
     // Libération de la mémoire
 
     free_text(main_title);
+    free_text_list(colors_valid);
+    free_text_list(pos_valid);
     free_pawn_list(spawners);
     free_button(play_btn);
     free_button(quit_btn);

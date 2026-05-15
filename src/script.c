@@ -3,7 +3,7 @@
 #include "script.h"
 
 const ColorCode white = {"White", {255, 255, 255, 255}};
-const ColorCode light_gray = {"Light Gray", {230, 230, 230, 255}};
+const ColorCode light_gray = {"Light-Gray", {230, 230, 230, 255}};
 const ColorCode green = {"Green", {0, 255, 0, 255}};
 const ColorCode blue = {"Blue", {0, 0, 255, 255}};
 const ColorCode yellow = {"Yellow", {255, 255, 0, 255}};
@@ -121,7 +121,7 @@ Game* init_game(List* colors){
 
         i_range = rand() % colors->length;
         next->color = val_i(colors, i_range);
-        while (el_in_list(ignore_color, next->color) == 0){
+        while (el_in_list(ignore_color, next->color) != 0){
             i_range = rand() % colors->length;
             next->color = val_i(colors, i_range);
         }
@@ -138,7 +138,6 @@ Game* init_game(List* colors){
     res->colors = colors;
     res->tries = list_tries;
     res->tries->first = NULL;
-    res->tries->next = NULL;
     return res;
 }
 
@@ -214,6 +213,7 @@ int colors_results(Game* game, List2* current_round){
         }
         current = current->next;
     }
+    printf("%d", res);
     return res;
 }
 

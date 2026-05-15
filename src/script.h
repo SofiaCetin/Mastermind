@@ -46,12 +46,13 @@ typedef struct List{
 
 typedef struct List2{
     Element* first;
+    int color_result;
+    int pos_result;
     struct List2* next;
 }List2;
 
 typedef struct ListOfLists{
     List2* first;
-    List2* next;
 }ListOfLists;
 
 typedef struct Game{
@@ -68,6 +69,7 @@ int el_in_list(List* list, ColorCode element);
 ColorCode val_i(List* list, int i);
 void append_list2(List2* list, Element* element);
 RoundState check_round(Game* game, List2* current_round);
+int colors_results(Game* game, List2* current_round);
 
 
 #endif

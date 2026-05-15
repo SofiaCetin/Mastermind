@@ -45,6 +45,8 @@ Text* create_text(float x, float y, char* text, ColorCode color, TTF_Font* font,
 
     SDL_DestroySurface(text_surface);
 
+    res->next = NULL;
+
     return res;
 
 }
@@ -172,7 +174,7 @@ void draw_pawn_list(SDL_Renderer* renderer, PawnList* list){
     }
 }
 
-void draw_gameboard(SDL_Renderer* renderer, Game* game, PawnList* current_pawns){
+void draw_gameboard(SDL_Renderer* renderer, Game* game, PawnList* current_pawns, TextList* colors_valid, TextList* pos_valid, TTF_Font* font){
     float rect_x = (SCREEN_WIDTH / 2) - 150;
     float rect_y = 0;
     float rect_w = 300;
@@ -203,6 +205,8 @@ void draw_gameboard(SDL_Renderer* renderer, Game* game, PawnList* current_pawns)
             SDL_SetRenderDrawColor(renderer, lightdark_gray.rgb.r, lightdark_gray.rgb.g, lightdark_gray.rgb.b, lightdark_gray.rgb.a);
 
             SDL_RenderFillRect(renderer, &rect_2);
+
+            gen_numbers(renderer, colors_valid, font, current->color_result, rect_x - 20, rect_y + (try_h / 2));
 
             Element* current_el = current->first;
             while (current_el != NULL){
@@ -279,7 +283,7 @@ List2* convert_pawnlist_to_list(PawnList* pawns){
         return NULL;
     }
 
-    List2* res = malloc(sizeof(List));
+    List2* res = malloc(sizeof(List2));
     if (res == NULL){
         return NULL;
     }
@@ -300,32 +304,41 @@ List2* convert_pawnlist_to_list(PawnList* pawns){
     return res;
 }
 
-/*
-void draw_numbers(TTF_Font* font, int number, float starting_x, float starting_y){
-    if (font == NULL || number > 4){
+void append_textlist(TextList* list, Text* text){
+    if (list == NULL){
         return;
     }
-    
-    int tab[] = {"1", "2", "3", "4"};
+
+    if (list->first == NULL){
+        list->first = text;
+        return;
+    }
+
+    Text* current = list->first;
+    while (current->next != NULL){
+        current = current->next;
+    }
+    current->next = text;
+    text->next = NULL;
+}
+
+void gen_numbers(SDL_Renderer* renderer, TextList* text_list, TTF_Font* font, int number, float starting_x, float starting_y){
+    if (text_list == NULL ||  number > 4 || number <= 0){
+        return;
+    }
+
+    char text_number = '1';
+    int text_separation = 10;
+    starting_x = starting_x - (number * 20) - text_separation;
 
     for (int i = 0; i < number; i++){
-        char* title = tab[j];
-        SDL_Surface* title_surface = TTF_RenderText_Blended(title_font, title, strlen(title), white.rgb);
-        if (title_surface == NULL){
-            printf("Erreur de surface: %s", SDL_GetError());
-            return 1;
+        Text* text = create_text(starting_x, starting_y, &text_number, white, font, renderer);
+        if (text == NULL){
+            return;
         }
-        SDL_Texture* title_texture = SDL_CreateTextureFromSurface(renderer, title_surface);
-
-        float text_w = title_surface->w;
-        float text_h = title_surface->h;
-
-        SDL_DestroySurface(title_surface);
-
-        SDL_FRect text_rect = {starting_x - text_w / 2, (starting_y - 100) - text_h / 2, text_w, text_h};
-
-        SDL_RenderTexture(renderer, title_texture, NULL, &text_rect);
-
+        append_textlist(text_list, text);
+        draw_text(renderer, text);
+        text_number++;
+        starting_x += 20 + text_separation;
     }
 }
-*/
