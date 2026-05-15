@@ -121,6 +121,8 @@ void append_pawn(PawnList* list, Pawn* element){
         return;
     }
 
+    element->next = NULL;
+
     if (list->first == NULL){
         list->first = element;
     } else{
@@ -129,7 +131,6 @@ void append_pawn(PawnList* list, Pawn* element){
             current = current->next;
         }
         current->next = element;
-        element->next = NULL;
     }
 }
 
@@ -292,6 +293,7 @@ List2* convert_pawnlist_to_list(PawnList* pawns){
     if (res == NULL){
         return NULL;
     }
+    res->first = NULL;
     res->next = NULL;
 
     Pawn* current = pawns->first;
@@ -314,6 +316,8 @@ void append_textlist(TextList* list, Text* text){
         return;
     }
 
+    text->next = NULL;
+
     if (list->first == NULL){
         list->first = text;
         return;
@@ -324,7 +328,6 @@ void append_textlist(TextList* list, Text* text){
         current = current->next;
     }
     current->next = text;
-    text->next = NULL;
 }
 
 void gen_numbers(SDL_Renderer* renderer, TextList* text_list, TTF_Font* font, int number, float starting_x, float starting_y, NumberSide side){

@@ -22,6 +22,9 @@ void append(List* colors, ColorCode element){
         return;
     }
     Element* new = malloc(sizeof(Element));
+    if (new == NULL){
+        return NULL;
+    }
     new->color = element;
     new->next = NULL;
     if (colors->first == NULL){
@@ -145,6 +148,8 @@ void add_new_try(Game* game, List2* new_try){
     if (game == NULL || new_try == NULL || new_try->first == NULL){
         return;
     }
+    new_try->next = NULL;
+
     if (game->tries->first == NULL){
         game->tries->first = new_try;
         return;
@@ -154,17 +159,16 @@ void add_new_try(Game* game, List2* new_try){
         current = current->next;
     }
     current->next = new_try;
-    new_try->next = NULL;
-
 }
 
 void append_list2(List2* list, Element* element){
     if (list == NULL){
         return;
     }
+    element->next = NULL;
+
     if (list->first == NULL){
         list->first = element;
-        element->next = NULL;
         return;
     }
     Element* current = list->first;
@@ -172,7 +176,6 @@ void append_list2(List2* list, Element* element){
         current = current->next;
     }
     current->next = element;
-    element->next = NULL;
 }
 
 RoundState check_round(Game* game, List2* current_round){
