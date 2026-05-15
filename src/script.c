@@ -123,6 +123,7 @@ Game* init_game(List* colors){
         if (next == NULL){
             return NULL;
         }
+        next->next = NULL;
 
         i_range = rand() % colors->length;
         next->color = val_i(colors, i_range);
@@ -133,7 +134,6 @@ Game* init_game(List* colors){
         append(ignore_color, next->color);
         current->next = next;
         current = next;
-        next->next = NULL;
     }
 
     res->code = code;
@@ -251,6 +251,7 @@ int pos_results(Game* game, List2* current_round){
     Element* round_current = current_round->first;
     Element* game_current = game->code->first;
     while (round_current != NULL && game_current != NULL){
+
         if (strcmp(round_current->color.name, game_current->color.name) == 0){
             res++;
         }
