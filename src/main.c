@@ -12,6 +12,9 @@ typedef enum{
 // Fonctions de jeu auxiliaires
 
 bool mouse_on_btn(float mouse_x, float mouse_y, Button* button){
+    if (button == NULL){
+        return 0;
+    }
     if(mouse_x >= button->x && mouse_x <= (button->x + button->w) &&
         mouse_y >= button->y && mouse_y <= (button->y + button->h)){
             return 1;
@@ -336,7 +339,10 @@ int main(int argc, char *argv[])
         while (SDL_PollEvent(&event)){
 
             if (event.type == SDL_EVENT_QUIT){
-                free_pawns(current_pawns);
+                if (current_pawns != NULL) {
+                    free_pawns(current_pawns);
+                    current_pawns = NULL;
+                }
                 quit = true;
             }
 
@@ -346,7 +352,10 @@ int main(int argc, char *argv[])
                         state = Play;
                     }
                     else if(mouse_on_btn(xmouse, ymouse, quit_btn)){
-                        free_pawns(current_pawns);
+                        if (current_pawns != NULL) {
+                            free_pawns(current_pawns);
+                            current_pawns = NULL;
+                        }
                         quit = true;
                     }
                 }
@@ -406,14 +415,28 @@ int main(int argc, char *argv[])
                             converted_round->color_result = color_result;
                             converted_round->pos_result = pos_result;
                             add_new_try(game, converted_round);
-                            free_pawns(current_pawns);
+                            if (current_pawns != NULL) {
+                                free_pawns(current_pawns);
+                                current_pawns = malloc(sizeof(PawnList));
+                                if (current_pawns == NULL){
+                                    return 1;
+                                }
+                                current_pawns->first = NULL;
+                            }
                             if (len_listoflists(game->tries) >= 9){
                                 state = EndLose;
                             }
                         }
                         else if (result == Win){
                             add_new_try(game, converted_round);
-                            free_pawns(current_pawns);
+                            if (current_pawns != NULL) {
+                                free_pawns(current_pawns);
+                                current_pawns = malloc(sizeof(PawnList));
+                                if (current_pawns == NULL){
+                                        return 1;
+                                }
+                                current_pawns->first = NULL;
+                            }
                             state = EndWin;
                         }
                     }
@@ -428,13 +451,19 @@ int main(int argc, char *argv[])
 
                         free_text_list(colors_valid);
                         free_text_list(pos_valid);
+                        colors_valid = NULL;
+                        pos_valid = NULL;
 
                         colors_valid = malloc(sizeof(TextList));
                         pos_valid = malloc(sizeof(TextList));
+                        if (colors_valid == NULL || pos_valid == NULL){
+                            return 1;
+                        }
 
                         colors_valid->first = NULL;
                         pos_valid->first = NULL;
                         free_game(game);
+                        game = NULL;
 
                         List* colors = malloc(sizeof(List));
                         if (colors == NULL){
@@ -453,13 +482,19 @@ int main(int argc, char *argv[])
                         append(colors, light_gray);
 
                         game = init_game(colors);
+                        if (game == NULL){
+                            return 1;
+                        }
                         if (argc == 2 && strcmp(argv[1],"test") == 0){
                             show_elements(game->code);
                         }
                     }
 
                     if (mouse_on_btn(xmouse, ymouse, quit_btn)){
-                        free_pawns(current_pawns);
+                        if (current_pawns != NULL) {
+                            free_pawns(current_pawns);
+                            current_pawns->first = NULL;
+                        }
                         quit = true;
                     }
                 }
@@ -487,7 +522,9 @@ int main(int argc, char *argv[])
 
         else if(state == Play){
             SDL_SetCursor(arrow_cursor);
-            draw_gameboard(renderer, game, current_pawns, colors_valid, pos_valid, button_font);
+            if (current_pawns != NULL) {
+                draw_gameboard(renderer, game, current_pawns, colors_valid, pos_valid, button_font);
+            }
             draw_pawn_list(renderer, spawners);
             if (moving_pawn != NULL){
                 draw_pawn(renderer, moving_pawn);
