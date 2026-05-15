@@ -11,11 +11,16 @@
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
 
-typedef enum{
+typedef enum PawnType{
     Spawner,
     Moveable,
     Idle
 }PawnType;
+
+typedef enum NumberSide{
+    Left,
+    Right
+}NumberSide;
 
 typedef struct Text{
     float x;
@@ -73,7 +78,8 @@ Pawn* pawn_click(PawnList* current_pawns, float x, float y);
 List2* convert_pawnlist_to_list(PawnList* pawns);
 Text* create_text(float x, float y, char* text, ColorCode color, TTF_Font* font, SDL_Renderer* renderer);
 void draw_text(SDL_Renderer* renderer, Text* text);
-void gen_numbers(SDL_Renderer* renderer, TextList* text_list, TTF_Font* font, int number, float starting_x, float starting_y);
+void gen_numbers(SDL_Renderer* renderer, TextList* text_list, TTF_Font* font, int number, float starting_x, float starting_y, NumberSide side);
 void append_textlist(TextList* list, Text* text);
+void draw_result(SDL_Renderer* renderer, List* code, float starting_x, float starting_y);
 
 #endif

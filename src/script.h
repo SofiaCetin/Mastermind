@@ -11,6 +11,8 @@ typedef enum RoundState{
     Valid,
     MissingPawns,
     SameColorPawns,
+    Win,
+    Lose,
     Invalid
 }RoundState;
 
@@ -70,6 +72,8 @@ ColorCode val_i(List* list, int i);
 void append_list2(List2* list, Element* element);
 RoundState check_round(Game* game, List2* current_round);
 int colors_results(Game* game, List2* current_round);
+int pos_results(Game* game, List2* current_round);
+int len_listoflists(ListOfLists* list);
 
 
 #endif

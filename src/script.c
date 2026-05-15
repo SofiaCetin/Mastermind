@@ -42,7 +42,7 @@ int el_in_list(List* list, ColorCode element){
     }
     Element* current = list->first;
     while (current != NULL){
-        if (current->color.name == element.name){
+        if (strcmp(current->color.name, element.name) == 0){
             return 1;
         }
         current = current->next;
@@ -61,7 +61,7 @@ void show_elements(List* colors){
         actuel = actuel->next;
         printf(" ");
     }
-    printf("]");
+    printf("] \n");
 }
 
 ColorCode val_i(List* list, int i){
@@ -188,7 +188,7 @@ RoundState check_round(Game* game, List2* current_round){
 
     Element* current = current_round->first;
     while (current != NULL){
-        if (current->color.name == lighter_gray.name){
+        if (strcmp(current->color.name, lighter_gray.name) == 0){
             return MissingPawns;
         }
         if (el_in_list(check_doubles, current->color)){
@@ -198,7 +198,17 @@ RoundState check_round(Game* game, List2* current_round){
         current = current->next;
 
     }
-    return Valid;
+
+    Element* color_code = game->code->first;
+    Element* color_round = current_round->first;
+    while (color_code != NULL){
+        if (strcmp(color_code->color.name, color_round->color.name) != 0){
+            return Valid;
+        }
+        color_code = color_code->next;
+        color_round = color_round->next;
+    }
+    return Win;
 }
 
 int colors_results(Game* game, List2* current_round){
@@ -213,39 +223,36 @@ int colors_results(Game* game, List2* current_round){
         }
         current = current->next;
     }
-    printf("%d", res);
     return res;
 }
 
-/*
 int pos_results(Game* game, List2* current_round){
     if (game == NULL || game->code == NULL || game->code->first == NULL || current_round == NULL || current_round->first == NULL){
         return 0;
     }
-    
+    int res = 0;
+    Element* round_current = current_round->first;
+    Element* game_current = game->code->first;
+    while (round_current != NULL && game_current != NULL){
+        if (strcmp(round_current->color.name, game_current->color.name) == 0){
+            res++;
+        }
+        round_current = round_current->next;
+        game_current = game_current->next;
+    }
+    return res;
 }
-*/
 
-/*
-int main(void){
+int len_listoflists(ListOfLists* list){
+    if (list == NULL || list->first == NULL){
+        return 0;
+    }
 
-    srand(time(NULL));
-
-    List* colors = malloc(sizeof(List));
-    colors->first = NULL;
-    colors->length = 0;
-    append(colors, white);
-    append(colors, green);
-    append(colors, blue);
-    append(colors, red);
-    append(colors, yellow);
-    append(colors, black);
-    append(colors, gray);
-    append(colors, pink);
-    append(colors, orange);
-    show_elements(colors);
-    Game* game = init_game(colors);
-    show_elements(game->code);
-
+    int res = 0;
+    List2* current = list->first;
+    while (current != NULL){
+        res++;
+        current = current->next;
+    }
+    return res;
 }
-*/

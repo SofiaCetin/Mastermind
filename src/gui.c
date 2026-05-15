@@ -206,7 +206,8 @@ void draw_gameboard(SDL_Renderer* renderer, Game* game, PawnList* current_pawns,
 
             SDL_RenderFillRect(renderer, &rect_2);
 
-            gen_numbers(renderer, colors_valid, font, current->color_result, rect_x - 20, rect_y + (try_h / 2));
+            gen_numbers(renderer, colors_valid, font, current->color_result, rect_x - 20, rect_y + (try_h / 2), Left);
+            gen_numbers(renderer, pos_valid, font, current->pos_result, rect_x + rect_w + 20, rect_y + (try_h / 2), Right);
 
             Element* current_el = current->first;
             while (current_el != NULL){
@@ -250,7 +251,7 @@ void modify_current_pawns(PawnList* current_pawns, float x, float y, Pawn* pawn)
     Pawn* current = current_pawns->first;
     while (current != NULL){
         if (current->x == x && current->y == y){
-            if (current->color.name == lighter_gray.name){
+            if (strcmp(current->color.name, lighter_gray.name) == 0){
                 current->color = pawn->color;
             }
         }
@@ -266,7 +267,7 @@ Pawn* pawn_click(PawnList* current_pawns, float x, float y){
     Pawn* current = current_pawns->first;
     while (current != NULL){
         if (current->x == x && current->y == y){
-            if(current->color.name != lighter_gray.name){
+            if(strcmp(current->color.name,lighter_gray.name) != 0){
                 Pawn* res = copy_create_pawn(current);
                 res->type = Moveable;
                 current->color = lighter_gray;
@@ -322,23 +323,56 @@ void append_textlist(TextList* list, Text* text){
     text->next = NULL;
 }
 
-void gen_numbers(SDL_Renderer* renderer, TextList* text_list, TTF_Font* font, int number, float starting_x, float starting_y){
+void gen_numbers(SDL_Renderer* renderer, TextList* text_list, TTF_Font* font, int number, float starting_x, float starting_y, NumberSide side){
     if (text_list == NULL ||  number > 4 || number <= 0){
         return;
     }
 
-    char text_number = '1';
+    char text_number[] = "1";
+
+    int text_width = 20;
     int text_separation = 10;
-    starting_x = starting_x - (number * 20) - text_separation;
+
+    int total_width = (number * text_width) + ((number - 1) * text_separation);
+
+    if (side == Left){
+        starting_x -= total_width;
+    }
+    else if (side == Right){
+        starting_x += text_separation;
+    }
 
     for (int i = 0; i < number; i++){
-        Text* text = create_text(starting_x, starting_y, &text_number, white, font, renderer);
+        Text* text = create_text(starting_x, starting_y, text_number, white, font, renderer);
         if (text == NULL){
             return;
         }
         append_textlist(text_list, text);
         draw_text(renderer, text);
-        text_number++;
+        text_number[0]++;
         starting_x += 20 + text_separation;
     }
+}
+
+void draw_result(SDL_Renderer* renderer, List* code, float starting_x, float starting_y){
+
+    int pawn_w = 40;
+    int pawn_h = 40;
+    int pawn_separation = pawn_w;
+    starting_x -= (pawn_separation / 2) + (pawn_w * 2) + pawn_separation;
+
+    Element* current = code->first;
+    for (int i = 0; i < 4; i++){
+        if (current != NULL){
+            SDL_FRect rect = {starting_x, starting_y, pawn_w, pawn_h};
+
+            SDL_SetRenderDrawColor(renderer, current->color.rgb.r, current->color.rgb.g, current->color.rgb.b, current->color.rgb.a);
+
+            SDL_RenderFillRect(renderer, &rect);
+
+            current = current->next;
+            starting_x += pawn_separation + pawn_w;
+        }
+    }
+
 }
