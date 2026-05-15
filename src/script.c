@@ -23,7 +23,7 @@ void append(List* colors, ColorCode element){
     }
     Element* new = malloc(sizeof(Element));
     if (new == NULL){
-        return NULL;
+        return;
     }
     new->color = element;
     new->next = NULL;
