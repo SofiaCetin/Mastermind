@@ -22,8 +22,7 @@ jobs:
     - name: Compilation
       run: |
         cd dist
-        gcc -Wall src/main.c src/gui.c src/script.c -o mastermind.out \
-	      $(shell pkg-config --cflags --libs sdl3 sdl3-ttf)
+        gcc -Wall src/main.c src/gui.c src/script.c -o mastermind.out $(shell pkg-config --cflags --libs sdl3 sdl3-ttf)
     - name: Zip
       run: |
         zip -r MASTERMIND-macOS.zip mastermind.out
