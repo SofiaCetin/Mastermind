@@ -23,7 +23,7 @@ jobs:
       run: gcc -Wall src/main.c src/gui.c src/script.c -o mastermind.out $(pkg-config --cflags --libs sdl3 sdl3-ttf)
     - name: Zip
       run: |
-        zip -r MASTERMIND-macOS.zip mastermind.out
+        zip -r MASTERMIND-macOS.zip mastermind.out assets
     - name: Mise en ligne
       uses: actions/upload-artifact@v4
       with:
@@ -47,4 +47,5 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            mastermind-macos/MASTERMIND-macOS.zip
+            mastermind-macos/MASTERMIND-macOS.Zip
+
