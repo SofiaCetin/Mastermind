@@ -20,7 +20,7 @@ jobs:
         brew install sdl3
         brew install sdl3_ttf
     - name: Compilation
-      run: gcc -Wall src/main.c src/gui.c src/script.c -o mastermind.out $(shell pkg-config --cflags --libs sdl3 sdl3-ttf)
+      run: gcc -Wall src/main.c src/gui.c src/script.c -o mastermind.out $(pkg-config --cflags --libs sdl3 sdl3-ttf)
     - name: Zip
       run: |
         zip -r MASTERMIND-macOS.zip mastermind.out
