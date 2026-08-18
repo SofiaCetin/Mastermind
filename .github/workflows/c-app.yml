@@ -1,0 +1,53 @@
+name: MASTERMIND
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  macos:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Installation des dépendances
+      run: |
+        brew install sdl3
+        brew install sdl3_ttf
+    - name: Compilation
+      run: |
+        cd dist
+        gcc -Wall src/main.c src/gui.c src/script.c -o mastermind.out \
+	      $(shell pkg-config --cflags --libs sdl3 sdl3-ttf)
+    - name: Zip
+      run: |
+        zip -r MASTERMIND-macOS.zip mastermind.out
+    - name: Mise en ligne
+      uses: actions/upload-artifact@v4
+      with:
+        name: mastermind-macos
+        path: dist/MASTERMIND-macOS.zip
+  
+  release:
+    needs:
+      - macos
+    
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Téléchargement
+        uses: actions/download-artifact@v4
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            mastermind-macos/MASTERMIND-macOS.zip
