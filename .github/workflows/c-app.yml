@@ -47,5 +47,5 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            mastermind-macos/MASTERMIND-macOS.Zip
+            mastermind-macos/MASTERMIND-macOS.zip
 
