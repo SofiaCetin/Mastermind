@@ -28,7 +28,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: mastermind-macos
-        file: MASTERMIND-macOS.zip
+        path: MASTERMIND-macOS.zip
   
   release:
     needs:
