@@ -9,30 +9,62 @@ permissions:
   contents: read
 
 jobs:
-  macos:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            install: |
+              sudo apt-get update
+              sudo apt-get install -y libsdl3-dev libsdl3-ttf-dev
+            artifact: mastermind
+          - os: macos-latest
+            install: |
+              brew install sdl3 sdl3_ttf
+            artifact: mastermind
+          - os: windows-latest
+            artifact: Release/mastermind.exe
 
-    runs-on: macos-latest
+    runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Installation des dépendances
-      run: |
-        brew install sdl3
-        brew install sdl3_ttf
-    - name: Compilation
-      run: gcc -Wall src/main.c src/gui.c src/script.c -o mastermind.out $(pkg-config --cflags --libs sdl3 sdl3-ttf)
-    - name: Zip
-      run: |
-        zip -r MASTERMIND-macOS.zip mastermind.out assets
-    - name: Mise en ligne
-      uses: actions/upload-artifact@v4
-      with:
-        name: mastermind-macos
-        path: MASTERMIND-macOS.zip
-  
+      - uses: actions/checkout@v4
+
+      - name: Installation de SDL (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: ${{ matrix.install }}
+
+      - name: Installation de SDL (Windows)
+        if: runner.os == 'Windows'
+        uses: libsdl-org/setup-sdl@main
+        with:
+          version: 3-latest
+          version-sdl-ttf: 3-latest
+
+      - name: Configuration
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Zip (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: zip -r MASTERMIND-${{ runner.os }}.zip build/mastermind build/assets
+      
+      - name: Zip(Windows)
+        if: runner.os == 'Windows'
+        run: Compress-Archive -Path build/Release/mastermind.exe, build/assets -DestinationPath MASTERMIND-${{ runner.os }}.zip
+      
+      - name: Mise en ligne
+        uses: actions/upload-artifact@v4
+        with:
+          name: mastermind-${{ runner.os }}
+          path: |
+              MASTERMIND-${{ runner.os }}.zip
+
   release:
     needs:
-      - macos
+      - build
     
     runs-on: ubuntu-latest
 
@@ -47,5 +79,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            mastermind-macos/MASTERMIND-macOS.zip
+            mastermind-Windows/MASTERMIND-Windows.zip
+            mastermind-macOS/MASTERMIND-macOS.zip
+            mastermind-Linux/MASTERMIND-Linux.zip
 

@@ -277,10 +277,14 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    TTF_Font* button_font = TTF_OpenFont("assets/Jersey10-Regular.ttf", 47);
-    TTF_Font* title_font = TTF_OpenFont("assets/Jersey10-Regular.ttf", 70);
+    const char *base_path = SDL_GetBasePath();
+    char font_path[512];
+    snprintf(font_path, sizeof(font_path), "%sassets/Jersey10-Regular.ttf", base_path);
+
+    TTF_Font* button_font = TTF_OpenFont(font_path, 47);
+    TTF_Font* title_font = TTF_OpenFont(font_path, 70);
     if (button_font == NULL || title_font == NULL){
-        printf("Erreur d'initialisation de la font");
+        printf("Erreur d'initialisation de la font: %s\n", SDL_GetError());
         return 1;
     }
 
