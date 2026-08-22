@@ -46,7 +46,8 @@ jobs:
         run: |
           git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/libsdl-org/SDL_ttf.git
           cmake -B SDL_ttf/build -S SDL_ttf -DCMAKE_BUILD_TYPE=Release
-          cmake --install SDL_ttf/build
+          cmake --build SDL_ttf/build --config Release
+          cmake --install SDL_ttf/build --config Release
 
       - name: Installation de SDL3_ttf (Linux)
         if: runner.os == 'Linux'
@@ -55,6 +56,7 @@ jobs:
           sudo apt-get install -y libfreetype-dev libharfbuzz-dev
           git clone --depth 1 https://github.com/libsdl-org/SDL_ttf.git
           cmake -B SDL_ttf/build -S SDL_ttf -DCMAKE_BUILD_TYPE=Release
+          cmake --build SDL_ttf/build
           sudo cmake --install SDL_ttf/build
 
       - name: Configuration
