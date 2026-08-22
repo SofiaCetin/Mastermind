@@ -31,9 +31,11 @@ jobs:
 
       - name: Installation de SDL3 (Windows)
         if: runner.os == 'Windows'
-        uses: libsdl-org/setup-sdl@main
-        with:
-          version: 3-latest
+        run: |
+          git clone --depth 1 https://github.com/libsdl-org/SDL.git
+          cmake -B SDL/build -S SDL -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF
+          cmake --build SDL/build --config Release
+          cmake --install SDL/build --config Release
       
       - name: Installation de SDL3 (Linux)
         if: runner.os == 'Linux'
@@ -45,7 +47,7 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/libsdl-org/SDL_ttf.git
-          cmake -B SDL_ttf/build -S SDL_ttf -DCMAKE_BUILD_TYPE=Release
+          cmake -B SDL_ttf/build -S SDL_ttf -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF
           cmake --build SDL_ttf/build --config Release
           cmake --install SDL_ttf/build --config Release
 
