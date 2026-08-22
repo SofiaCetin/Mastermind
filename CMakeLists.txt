@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(mastermind LANGUAGES C)
 
 find_package(SDL3 REQUIRED)
-find_package(SDL3_TTF REQUIRED)
+find_package(SDL3_ttf REQUIRED)
 
 file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})
 
