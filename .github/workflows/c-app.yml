@@ -14,13 +14,8 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            install: |
-              sudo apt-get update
-              sudo apt-get install -y libsdl3-dev libsdl3-ttf-dev
             artifact: mastermind
           - os: macos-latest
-            install: |
-              brew install sdl3 sdl3_ttf
             artifact: mastermind
           - os: windows-latest
             artifact: Release/mastermind.exe
@@ -30,12 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Installation de SDL (Linux/macOS)
-        if: runner.os != 'Windows'
-        run: ${{ matrix.install }}
-
-      - name: Installation de SDL (Windows)
-        if: runner.os == 'Windows'
+      - name: Installation de SDL
         uses: libsdl-org/setup-sdl@main
         with:
           version: 3-latest
