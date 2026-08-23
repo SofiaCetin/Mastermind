@@ -18,45 +18,6 @@ Tout au long des manches, le joueur aura la possibilité de voir combien de coul
 
 _Un aperçu du jeu_
 
-## Prérequis
+## Installation
 
-### Simple Direct Media Layer 3
-
-Ce programme nécessite les packages [SDL3](https://wiki.libsdl.org/SDL3/FrontPage) et [SDL3_ttf](https://wiki.libsdl.org/SDL3_ttf/FrontPage) afin de fonctionner.
-
-Avec Homebrew sur MacOS, vous pouvez lancer les commandes:
-
-```bash
-brew install sdl3
-brew install sdl3_ttf
-```
-
-Pour les autres plateformes, vous pouvez consulter la [documentation officielle de SDL](https://github.com/libsdl-org/SDL/blob/main/INSTALL.md).
-
-## Compilation et exécution
-
-### Compiler avec GCC
-
-Le makefile inclut dans le dépôt permet de directement compiler le programme, à condition d'avoir GCC et tous les prérequis nécessaires installés sur votre machine. 
-
-Positionnez-vous dans le répertoire **mastermind/** et lancez la commande:
-
-```bash
-make
-```
-
-Vous pouvez également supprimer l'exécutable généré avec:
-
-```bash
-make clean
-```
-
-### Lancer le programme
-
-Vous pouvez donc lancer le programme avec l'exécutable.
-a
- Vous avez également l'option, si vous le souhaitez, d'indiquer en argument de l'exécutable d'afficher la combinaison correcte dans le terminal afin de faciliter le débogage.
-
-```bash
-./mastermind.out test
-```
+Des exécutables sont disponibles pour Windows, macOS et Linux dans la section Releases !
