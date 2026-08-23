@@ -21,3 +21,7 @@ _Un aperçu du jeu_
 ## Installation
 
 Des exécutables sont disponibles pour Windows, macOS et Linux dans la section Releases !
+
+## Bibliothèques utilisées
+
+La bibliothèque [SDL3](https://www.libsdl.org/index.php) a été utilisée dans le cadre de ce projet.
